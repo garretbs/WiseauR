@@ -1,0 +1,37 @@
+DONT_PLAN_TOO_MUCH -> \bdon't\s+plan\s+too\s+much\b
+GREAT_BUT -> \bgreat\s+but\b
+A_CROWD -> \ba\s+crowd\b
+RECORD -> \bI('ll|\s+will)?\s+record\s+everything\b
+SHOW_THEM -> \bI('ll|\s+will)?\s+show\s+them\b
+YOU_KNOW_WHAT_THEY_SAY -> \bYou\s+know\s+what\s+they\s+say\b
+ANYWAY_HOW_IS_YOUR_SEX_LIFE -> \bAnyway,\s+how\s+is\s+your\s+sex\s+life\?
+IS_BLIND -> \bis\s+blind\b
+OHI -> \bOh\s+hi\b
+FORGIVE_ME -> \bforgive\s+me\b
+THATS_LIFE -> \bThat's\s+life\b
+WHAT_A_STORY -> \bWhat\s+a\s+story\b
+QUOTE -> "([\w\s]+)"
+IS -> (('s)|\bis)\b
+GOD -> \bGod\b
+HI -> \bHi\b
+HAH -> \b(Ha\s*)+h?\b
+CHEEPS -> \b([Cc]h(ee|i)p\s*)+\b
+NAME -> \b[A-Za-z]+\b
+NUMBER -> \b\d+\b
+COMMA -> ,
+PERIOD -> \.
+
+S -> anything theEnd | lambda
+anything -> declareVar anything | setVar anything | print anything | incrementVar anything | decrementVar anything | lambda
+theEnd -> GOD optionalComma FORGIVE_ME PERIOD | THATS_LIFE PERIOD
+declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD
+incrementVar -> HAH PERIOD
+decrementVar -> CHEEPS PERIOD
+setVar -> NAME optionalComma NUMBER IS GREAT_BUT NUMBER IS A_CROWD PERIOD
+print -> printVar | printString
+printVar -> YOU_KNOW_WHAT_THEY_SAY COMMA NAME IS_BLIND PERIOD | WHAT_A_STORY optionalComma NAME PERIOD | ANYWAY_HOW_IS_YOUR_SEX_LIFE
+printString -> YOU_KNOW_WHAT_THEY_SAY COMMA QUOTE PERIOD
+optionalComma -> COMMA | lambda
+recordEverything -> optionalShowThem RECORD PERIOD
+optionalShowThem -> SHOW_THEM PERIOD | LAMBDA
+randomValue -> NAME optionalComma DONT_PLAN_TOO_MUCH PERIOD
