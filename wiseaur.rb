@@ -172,6 +172,7 @@ class Tokenizer
 	def tokenize_file(input_file)
 		file = File.open(input_file, "r")
 		@input = file.read#.downcase #lazy, should have regex ignore case #+ "$"
+		@input.gsub!(/#[^#]*#/, "")
 		file.close
 		token_output = []
 		
@@ -605,34 +606,6 @@ class Tokenizer
 		end
 	end
 	
-	def compile_chef_assembly #x86
-		@variables = {}
-		@c_vars = {}
-		@last_var = 0
-		emit("extern printf")
-		emit("global main")
-		emit("main:")
-		emit("\tmov r8,0")
-		compile_chef(@parse_tree.root)
-		emit(";End")
-		emit("\tmov rax,0")
-		emit("\tret")
-		@variables.each do |k, v|
-			emit(@c_vars[k]+":")
-			emit("\tdb " + v.to_s + " ;" +k)
-		end
-		emit("dish:")
-		emit("\ttimes 256 db 0")
-		#puts "\nREMEMBER TO ACCOUNT FOR MULTI-LINE PRODUCTIONS IN GRAMMAR FILE!"
-		#puts "Done assembling! Output to chefasm.txt"
-		return true
-	end
-	
-	def add_cvar(var)
-		@c_vars[var] = sprintf("v%i", @last_var)
-		@last_var += 1
-	end
-	
 	def interpret_wiseau #not truly possible irl
 		@variables = {}
 		@current_variable = nil #whatever tommy is thinking about
@@ -650,34 +623,46 @@ class Tokenizer
 			else #lambda
 				return true
 			end
-		when "anything" #declareVar anything | setVar anything | print anything | incrementVar anything | lambda
+		when "anything" #declareVar anything | setVar anything | print anything | incrementVar anything | randomizeVar anything | lambda
 			if node.children.size == 2 #actual stuff
 				walk_wiseau(params[0])
 				walk_wiseau(params[1])
 			else #lambda
 				return true
 			end
-		when "declareVar" #declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD
-			if @variables[params[2].label]
-				raise "Variable " + params[2].label + " already declared!"
+		when "declareVar" #declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD | USED_TO_KNOW NAME PERIOD
+			var_name = node.children.size == 3 ? params[1].label : params[2].label
+			@variables[var_name] = rand(2004) unless @variables[var_name]
+			@current_variable = var_name
+		when "setVar" #NAME optionalComma NUMBER IS GREAT_BUT NUMBER IS A_CROWD PERIOD | SHE_HAD NUMBER GUYS_OR_GALS PERIOD
+			if node.children.size == 4
+				@variables[@current_variable] = params[1].label.to_i
+			else
+				get_variable(params[0].label)
+				@variables[params[0].label] = params[5].label.to_i
+				@current_variable = params[0].label
 			end
-			@variables[params[2].label] = rand(2003)
-			@current_variable = params[2].label
-		when "setVar" #NAME optionalComma NUMBER IS GREAT_BUT NUMBER IS A_CROWD PERIOD
-			get_variable(params[0].label)
-			@variables[params[0].label] = params[5].label.to_i
-			@current_variable = params[0].label
 		when "incrementVar" #HAH PERIOD
 			get_variable(@current_variable)
 			@variables[@current_variable] += params[0].label.count("a")
 		when "decrementVar" #CHEEPS PERIOD
 			get_variable(@current_variable)
-			@variables[@current_variable] += params[0].label.count("p")
+			@variables[@current_variable] -= params[0].label.count("p")
+		when "randomizeVar" #PEOPLE_ARE_STRANGE PERIOD | NAME IS_STRANGE PERIOD
+			if node.children.size == 2 #PEOPLE_ARE_STRANGE PERIOD
+				@variables[@current_variable] = rand()
+			else #NAME IS_STRANGE PERIOD
+				get_variable(params[0].label)
+				@variables[@params[0].label] = rand()
+			end
+		when "getInput" #NO_SECRETS PERIOD
+			puts params[0].label
+			@variables[@current_variable] = gets.chomp
 		when "print" #printVar | printString
 			walk_wiseau(params[0])
-		when "printVar" #YOU_KNOW_WHAT_THEY_SAY COMMA NAME IS_BLIND PERIOD
-			if node.children.size == 1
-				@variables[@current_variable]
+		when "printVar" #YOU_KNOW_WHAT_THEY_SAY COMMA NAME IS_BLIND PERIOD | WHAT_A_STORY optionalComma NAME PERIOD | ANYWAY_HOW_IS_YOUR_SEX_LIFE QUESTION
+			if node.children.size == 2 #WHAT_A_STORY optionalComma NAME PERIOD
+				puts @variables[@current_variable]
 			else
 				puts @variables[params[2].label]
 				@current_variable = params[2].label
@@ -691,168 +676,10 @@ class Tokenizer
 		end
 	end
 	
-	def compile_chef(node)
-		params = node.children.reverse
-		case node.label
-		when "S" #recipeList
-			compile(params[0])
-		when "recipeList" #recipe recipeList | recipe
-			if node.children.size == 2				
-				compile(params[0]) #recipe
-				compile(params[1]) #recipeList
-			else
-				compile(params[0]) #recipe
-			end
-		when "recipe" #wordList PERIOD wordList PERIOD optionalIngredients optionalCookingTime optionalPreheat method serves
-			#emit(";" + compile(params[0]))
-			#compile(params[0]) #wordList (title)
-			#1 PERIOD
-			#emit(";" + compile(params[2]))
-			#compile(params[2]) #wordList (comment)
-			#3 PERIOD
-			compile(params[4]) #optionalIngredients
-			compile(params[5]) #optionalCookingTime
-			compile(params[6]) #optionalPreheat
-			compile(params[7]) #method
-			compile(params[8]) #serves
-		when "wordList" #wordList WORD | WORD
-			if params.size == 2
-				return compile(params[0]) + " " + params[1].label
-				#compile(params[0]) #wordList
-				#puts "WORD: " + params[1].label
-			else
-				return params[0].label
-				#puts "WORD: " + params[0].label
-			end
-		when "optionalIngredients" #INGREDIENTS PERIOD ingredientList | lambda
-			if params.size == 3
-				#puts "INGREDIENTS: " + params[0].label
-				#1, PERIOD
-				compile(params[2]) #ingredientList
-			end
-		when "optionalCookingTime"
-			if params.size == 5
-				#emit(";Cooking time: " + params[2].label + " " + params[3].label)
-				#puts "COOKING TIME: " + params[0].label
-				#puts "COOKING TIME: " + params[2].label + " " + params[3].label
-			end
-		when "optionalPreheat" #PREHEAT_OVEN_TO tempSpec PERIOD
-			if params.size == 3
-				#emit(";" + params[0].label + " " + compile(params[1])) #tempSpec
-				#2, PERIOD
-			end
-		when "method" #METHOD PERIOD stmt-list
-			#emit(";" + params[0].label)
-			#1, PERIOD
-			compile(params[2]) #stmt-list
-		when "serves" #SERVES NUM PERIOD
-			#Prints the contents of the corresponding number of baking dishes. The elements in each dish are printed from top of the stack to the bottom. 
-			emit(";Serves " + params[1].label)
-			emit("\tcall printf")
-			#2, PERIOD
-		when "ingredientList" #ingredient ingredientList
-			if params.size == 2
-				compile(params[0]) #ingredient
-				compile(params[1]) #ingredientList
-			end
-		when "tempSpec" #NUM DEGREES | GAS_MARK NUM | THERMOSTAT NUM | STUFE NUM
-			if params[0].type == "NUM"
-				return params[0].label + " degrees"
-			else
-				#emit(";Go back to Europe")				
-			end
-		when "stmt-list" #stmt PERIOD stmt-list | stmt PERIOD
-			if params.size == 2
-				compile(params[0]) #stmt
-				#1, PERIOD
-			else
-				compile(params[0]) #stmt
-				#1, PERIOD
-				compile(params[2]) #stmt-list
-			end
-		when "ingredient" #optionalInitialValue optionalMeasureType wordList PERIOD
-			init_value = compile(params[0])
-			var_name = compile(params[2])
-			if @variables.has_key?(var_name)
-				raise "Tried to redefine variable " + var_name
-			elsif init_value == :uninitialized
-				#puts var_name + " is uninitialized"
-				@variables[var_name] = :uninitialized
-			else
-				#puts var_name + "= " + init_value
-				@variables[var_name] = init_value.to_i
-			end
-			add_cvar(var_name)
-			#emit("\tadd rsp,1")
-			#@variables[compile(params[2])] = params[0].label.to_i
-			#3, PERIOD
-		when "stmt" #putStmt | cleanStmt | mathStmt | stirStmt | mixStmt | liquefyStmt | takeStmt | SET_ASIDE | serveStmt | refrigerateStmt
-			if params[0].type == "SET_ASIDE"
-				emit("\t;End loop")
-			else
-				compile(params[0])
-			end
-		when "optionalInitialValue" #NUM
-			if params.size == 1
-				return params[0].label
-			else
-				return :uninitialized
-			end
-		when "optionalMeasureType" #optionalDescriptive MEASURE
-			if params.size == 2
-				compile(params[0]) #optionalDescriptive
-				puts "MEASURE: " + params[1].label
-			end
-		when "putStmt" #PUT_OR_FOLD wordList INTO_MIXING_BOWL | PUT_OR_FOLD wordList INTO_NTH_MIXING_BOWL
-			#push the value of the variable on the top of the bowl
-			#return puts "Push variable onto top of bowl"
-			#puts params[0].label #PUT_OR_FOLD
-			v = get_variable(compile(params[1]))
-			emit(";Put " + v + " into mixing bowl")
-			emit("\tpush " + @c_vars[v])
-			#emit("\tadd rsp,1")
-			#puts params[2].label #INTO_MIXING_BOWL or INTO_NTH_MIXING_BOWL
-		when "cleanStmt" #CLEAN_MIXING_BOWL | CLEAN_NTH_MIXING_BOWL
-			puts params[0].label
-		when "mathStmt" #addStmt | subStmt | mulStmt | divStmt | pourStmt | loopStmt
-			compile(params[0])
-		when "stirStmt" #STIR_FOR NUM TIME_UNIT | STIR_THE_MIXING_BOWL_FOR NUM TIME_UNIT |  STIR_THE_NTH_MIXING_BOWL_FOR NUM TIME_UNIT | STIR wordList INTO_THE_MIXING_BOWL | STIR wordList INTO_THE_NTH_MIXING_BOWL
-		when "optionalDescriptive"
-		when "addStmt" #ADD wordList | ADD wordList TO_MIXING_BOWL | ADD wordList TO_NTH_MIXING_BOWL | ADD_DRY_INGREDIENTS | ADD_DRY_INGREDIENTS TO_MIXING_BOWL | ADD_DRY_INGREDIENTS TO_NTH_MIXING_BOWL 
-			#add the value of the variable to the top element of the bowl.
-			v = get_variable(compile(params[1]))
-			emit(";Add " + v)
-			emit("\tpop rbx")
-			emit("\tlea rax,[" + @c_vars[v] + "]")
-			emit("\tadd rax,rbx")
-			emit("\tpush rax")
-		when "mulStmt" #COMBINE wordList | COMBINE wordList INTO_MIXING_BOWL | COMBINE wordList INTO_NTH_MIXING_BOWL
-			#multiply the top element of the bowl by the value of the variable.
-			v = get_variable(compile(params[1]))
-			emit(";Combine " + v)
-			emit("\tlea rax,[" + @c_vars[v] + "]")
-			emit("\tmul rax")
-			emit("\tpush rax")
-		when "pourStmt"
-			#copy the elements from the bowl to the dish, preserving their order and putting them on top of the elements which have already been in the dish.
-			emit(";Pour ingredients")
-			emit("\tpop rax")
-			emit("\tlea [dish],r5")
-			emit("\tpush dish")
-		else #assume terminal, thus get only child's label for the lexeme
-			puts "\t\tNo operation yet: " + node.label
-		end
-	end
-	
 	def get_variable(v)
 		raise "Undefined variable " + v unless @variables.has_key?(v)
 		raise "Uninitialized variable " + v if @variables[v] == :uninitialized
 		return v
-	end
-	
-	def emit(asm)
-		#append asm to output file
-		puts asm
 	end
 	
 	def compute_closure(s)
