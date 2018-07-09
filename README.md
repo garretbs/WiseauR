@@ -21,7 +21,8 @@ TommyWiseau
 All comments are block-style, escaped by # and #. Example:
 ```
 Nice to see you Denny.
-#I kill you, you bastard!#
+#I kill you,
+you bastard!#
 That's #the end of your# life.
 ```
 Note that comments are expunged from source files before tokenization.
@@ -32,6 +33,7 @@ Variable declarations have two uses. One is to define a name for use, and the ot
 Oh hi [foo].
 Hi, [foo].
 Nice to see you [foo].
+[foo] is my best friend.
 ```
 #### Increment
 Variables can be incremented by acknowledging them and then laughing heartily. Each "ha" adds one to the current variable
@@ -45,6 +47,20 @@ Like the above, but each "cheep" or "chip" subtracts 1 from the variable.
 ```
 I used to know ChrisR.
 Cheep cheep cheep chipchipchip cheepcheep chipcheep chip.
+```
+#### Adding
+The following adds foo and bar and stores the result in foo:
+```
+I'm so happy [foo] is my best friend, and I love [bar] so much.
+```
+#### Subtracting
+The following subtracts 3 from Mark:
+```
+Mark doesn't have 3 fucking minutes!
+```
+#### Division
+```
+[divisor] is tearing [dividend] apart!
 ```
 #### Randomize variable
 The following operations randomize the most current variable and the specified variable, respectively. The result is a random value between 0 and 1.
@@ -75,6 +91,8 @@ I am going to take a nap.
 | Command       | Function      | Argument(s)  |
 | ------------- |:-------------:| -----------: |
 | Oh hi, (args).| Declaration 	| variable name|
+## Dependencies
+Ruby 2.4, though any Ruby version *should* work.
 ## Usage
 Have Ruby installed. Run like so:
 `ruby wiseaur.rb input.txt`
@@ -82,9 +100,11 @@ Have Ruby installed. Run like so:
 * Integrate grammar data into wiseaur.rb.
 * More operations: bitwise, mul/div/mod, comparators
 * Negatives
-* More data types: strings, arrays, booleans
+* More data types: strings, arrays, booleans. These are based on how the variables are declared.
 * Become Turing complete
 * Loops, conditionals
 * Preprocessor stuff
 * I/O
+## Known Bugs
+* Ruby issue: using gets() along with file input is a nono
 ## License

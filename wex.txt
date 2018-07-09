@@ -9,8 +9,14 @@ SHOW_THEM -> \bI('ll|\s+will)?\s+show\s+them\b
 YOU_KNOW_WHAT_THEY_SAY -> \bYou\s+know\s+what\s+they\s+say\b
 ANYWAY_HOW_IS_YOUR_SEX_LIFE -> \bAnyway,?\s+how\s+is\s+your\s+sex\s+life\b
 PEOPLE_ARE_STRANGE -> \bPeople\s+are\s+very\s+strange\s+these\s+days\b
+TEARING -> \bis\s+tearing\b
+APART -> \bapart\b
 IS_STRANGE -> \bis\s+very\s+strange\s+these\s+days\b
 USED_TO_KNOW -> \bI\s+used\s+to\s+know\b
+SO_HAPPY -> \bI('|\s+a)m\s+so\s+happy\b
+BEST_FRIEND -> \bis\s+my\s+best\s+friend
+AND_I_LOVE -> \band\s+I\s+love\b
+SO_MUCH -> \bso\s+much\b
 IS_BLIND -> \bis\s+blind\b
 SHE_HAD -> \bS?he\s+had\b
 OHI -> \bOh\s+hi\b
@@ -24,19 +30,26 @@ HI -> \bHi\b
 GUYS_OR_GALS -> \b(guy|gal)s?\b
 HAH -> \b(Ha\s*)+h?\b
 CHEEPS -> \b([Cc]h(ee|i)p\s*)+\b
+HI_CAN -> \bHi,\s+can\b
+DOESNT_HAVE -> \bdoesn't\s+have\b
+FUCKING_MINUTES -> \bfucking\s+minutes\b
 NAME -> \b[A-Za-z]+\b
 NUMBER -> \b\d+\b
 COMMA -> ,
 PERIOD -> \.
 QUESTION -> \?
+EXCL -> !
 
 S -> anything theEnd | lambda
-anything -> declareVar anything | setVar anything | print anything | incrementVar anything | decrementVar anything | randomizeVar anything | getInput anything | lambda
+anything -> declareVar anything | setVar anything | print anything | incrementVar anything | decrementVar anything | addVar anything | subVar anything | divideVar anything | randomizeVar anything | getInput anything | lambda
 theEnd -> GOD optionalComma FORGIVE_ME PERIOD | THATS_LIFE PERIOD | TAKE_A_NAP PERIOD
-declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD | USED_TO_KNOW NAME PERIOD | NICE_TO_SEE_YOU optionalComma NAME PERIOD
+declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD | USED_TO_KNOW NAME PERIOD | NICE_TO_SEE_YOU optionalComma NAME PERIOD | NAME BEST_FRIEND PERIOD
 incrementVar -> HAH PERIOD
 decrementVar -> CHEEPS PERIOD
 setVar -> NAME optionalComma NUMBER IS GREAT_BUT NUMBER IS A_CROWD PERIOD | SHE_HAD NUMBER GUYS_OR_GALS PERIOD
+addVar -> SO_HAPPY NAME BEST_FRIEND optionalComma AND_I_LOVE NAME SO_MUCH PERIOD
+subVar -> NAME DOESNT_HAVE NUMBER FUCKING_MINUTES EXCL
+divideVar -> NAME TEARING NAME APART EXCL
 randomizeVar -> PEOPLE_ARE_STRANGE PERIOD | NAME IS_STRANGE PERIOD
 getInput -> NO_SECRETS PERIOD
 print -> printVar | printString

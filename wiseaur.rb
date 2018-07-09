@@ -630,8 +630,13 @@ class Tokenizer
 			else #lambda
 				return true
 			end
-		when "declareVar" #declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD | USED_TO_KNOW NAME PERIOD
-			var_name = node.children.size == 3 ? params[1].label : params[2].label
+		when "declareVar" #declareVar -> HI optionalComma NAME PERIOD | OHI optionalComma NAME PERIOD | USED_TO_KNOW NAME PERIOD | NAME BEST_FRIEND PERIOD
+			if node.children.size == 3
+				id = params[0].type == "NAME" ? 0 : 1 
+				var_name = params[id].label
+			else
+				var_name = params[2].label
+			end
 			@variables[var_name] = rand(2004) unless @variables[var_name]
 			@current_variable = var_name
 		when "setVar" #NAME optionalComma NUMBER IS GREAT_BUT NUMBER IS A_CROWD PERIOD | SHE_HAD NUMBER GUYS_OR_GALS PERIOD
@@ -648,6 +653,12 @@ class Tokenizer
 		when "decrementVar" #CHEEPS PERIOD
 			get_variable(@current_variable)
 			@variables[@current_variable] -= params[0].label.count("p")
+		when "addVar" #SO_HAPPY NAME BEST_FRIEND optionalComma AND_I_LOVE NAME SO_MUCH PERIOD
+			@variables[params[1].label] += @variables[params[5].label]
+		when "subVar" #NAME DOESNT_HAVE NUMBER FUCKING_MINUTES EXCL
+			@variables[params[0].label] -= params[2].label.to_i
+		when "divideVar" #NAME TEARING NAME APART EXCL
+			@variables[params[2].label] /= @variables[params[0].label]
 		when "randomizeVar" #PEOPLE_ARE_STRANGE PERIOD | NAME IS_STRANGE PERIOD
 			if node.children.size == 2 #PEOPLE_ARE_STRANGE PERIOD
 				@variables[@current_variable] = rand()
@@ -655,9 +666,6 @@ class Tokenizer
 				get_variable(params[0].label)
 				@variables[@params[0].label] = rand()
 			end
-		when "getInput" #NO_SECRETS PERIOD
-			puts params[0].label
-			@variables[@current_variable] = gets.chomp
 		when "print" #printVar | printString
 			walk_wiseau(params[0])
 		when "printVar" #YOU_KNOW_WHAT_THEY_SAY COMMA NAME IS_BLIND PERIOD | WHAT_A_STORY optionalComma NAME PERIOD | ANYWAY_HOW_IS_YOUR_SEX_LIFE QUESTION
@@ -754,14 +762,11 @@ class Tokenizer
 	
 end #tokenizer class
 
-grammar = ARGV[0] rescue nil
-input_file = ARGV[1] rescue nil
-
-raise "Grammar not specified" if grammar.nil?
+input_file = ARGV[0] rescue nil
 raise "Input file not specified" if input_file.nil?
 
 tokenizer = Tokenizer.new
-return unless tokenizer.parse_grammar(grammar)
+return unless tokenizer.parse_grammar("wex.txt")
 tokenizer.get_nullables
 tokenizer.get_first
 tokenizer.get_follow
