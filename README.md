@@ -18,12 +18,11 @@ breastCancer
 TommyWiseau
 ```
 #### Comments
-All comments are block-style, escaped by # and #. Example:
+Comments can be done per-line. Comment lines are terminated with "Leave your stupid comments in your pocket."
 ```
 Nice to see you Denny.
-#I kill you,
-you bastard!#
-That's #the end of your# life.
+I kill you, you bastard! Leave your stupid comments in your pocket.
+That's life.
 ```
 Note that comments are expunged from source files before tokenization.
 ### Operations
@@ -86,16 +85,11 @@ To print the most current variable without naming it:
 You know what they say, "Hello, world!".
 I am going to take a nap.
 ```
-
-## Full Command reference
-| Command       | Function      | Argument(s)  |
-| ------------- |:-------------:| -----------: |
-| Oh hi, (args).| Declaration 	| variable name|
 ## Dependencies
 Ruby 2.4, though any Ruby version *should* work.
 ## Usage
 Have Ruby installed. Run like so:
-`ruby wiseaur.rb input.txt`
+`ruby wiseaur.rb input.tw`
 ## Todo
 * Integrate grammar data into wiseaur.rb.
 * More operations: bitwise, mul/div/mod, comparators
@@ -105,6 +99,22 @@ Have Ruby installed. Run like so:
 * Loops, conditionals
 * Preprocessor stuff
 * I/O
+* Recursion
 ## Known Bugs
 * Ruby issue: using gets() along with file input is a nono
 ## License
+```
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+0. You just DO WHAT THE FUCK YOU WANT TO.
+```
