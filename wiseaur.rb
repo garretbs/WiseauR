@@ -29,7 +29,7 @@ class DFA_State
 	
 	def add_transition(sym, q)
 		if @transition.has_key?(sym)
-			raise "poopy"
+			raise "WHY LISA WHY"
 		end
 		@transition[sym] = q
 	end
@@ -172,7 +172,9 @@ class Tokenizer
 	def tokenize_file(input_file)
 		file = File.open(input_file, "r")
 		@input = file.read#.downcase #lazy, should have regex ignore case #+ "$"
-		@input.gsub!(/#[^#]*#/, "")
+		#@input.gsub!(/#[^#]*#/, "")
+		@input.gsub!(/\t/, " ")
+		@input.gsub!(/^.+Leave your stupid comments in your pocket.$/, "")
 		file.close
 		token_output = []
 		
@@ -609,6 +611,7 @@ class Tokenizer
 	def interpret_wiseau #not truly possible irl
 		@variables = {}
 		@current_variable = nil #whatever tommy is thinking about
+		@loop_queue = []
 		walk_wiseau(@parse_tree.root)
 		return true
 	end
@@ -666,17 +669,36 @@ class Tokenizer
 				get_variable(params[0].label)
 				@variables[@params[0].label] = rand()
 			end
+		when "loop" #LOOP_START PERIOD anything LOOP_END PERIOD
+			while true
+				walk_wiseau(params[2])
+				#after loop is done, repeat unless broken
+			end
+		when "breakStmt"
+		when "ifStmt" #IF_STMT COLON conditional QUESTION anything END_IF PERIOD
+			boolean = walk_wiseau(params[2])
+			if boolean
+				walk_wiseau(params[4])
+			else
+				exit
+			end
+		when "conditional" #equalTo | notEqualTo | greaterThan | lessThan | greaterThanOrEqual | lessThanOrEqual
+			return walk_wiseau(params[0])
+		when "equalTo" #CAN NAME HAVE NUMBER RED_ROSES_PLEASE
+			return @variables[params[1].label] != params[3].label.to_i
 		when "print" #printVar | printString
 			walk_wiseau(params[0])
 		when "printVar" #YOU_KNOW_WHAT_THEY_SAY COMMA NAME IS_BLIND PERIOD | WHAT_A_STORY optionalComma NAME PERIOD | ANYWAY_HOW_IS_YOUR_SEX_LIFE QUESTION
 			if node.children.size == 2 #WHAT_A_STORY optionalComma NAME PERIOD
-				puts @variables[@current_variable]
+				print @variables[@current_variable]
 			else
-				puts @variables[params[2].label]
+				print @variables[params[2].label]
 				@current_variable = params[2].label
 			end
 		when "printString" #YOU_KNOW_WHAT_THEY_SAY COMMA QUOTE PERIOD
-			puts params[2].label.tr("\"","") #need a better way of doing this
+			str = params[2].label.clone
+			str.gsub!("\\n","\n")
+			print str.tr("\"","") #need a better way of doing this
 		when "theEnd"
 			return true
 		else
@@ -766,7 +788,7 @@ input_file = ARGV[0] rescue nil
 raise "Input file not specified" if input_file.nil?
 
 tokenizer = Tokenizer.new
-return unless tokenizer.parse_grammar("wex.txt")
+return unless tokenizer.parse_grammar("wex.tw")
 tokenizer.get_nullables
 tokenizer.get_first
 tokenizer.get_follow
