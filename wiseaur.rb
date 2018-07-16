@@ -670,22 +670,30 @@ class Tokenizer
 				@variables[@params[0].label] = rand()
 			end
 		when "loop" #LOOP_START PERIOD anything LOOP_END PERIOD
-			while true
+			index = @loop_queue.size
+			@loop_queue.push(true)
+			while @loop_queue[index]
 				walk_wiseau(params[2])
 				#after loop is done, repeat unless broken
 			end
-		when "breakStmt"
-		when "ifStmt" #IF_STMT COLON conditional QUESTION anything END_IF PERIOD
+			@loop_queue.pop
+		when "breakStmt" #BREAK_STMT PERIOD
+			@loop_queue[-1] = false
+		when "ifStmt" #IF_STMT COLON conditional QUESTION anything optionalElse END_IF PERIOD
 			boolean = walk_wiseau(params[2])
 			if boolean
 				walk_wiseau(params[4])
-			else
-				exit
+			else#if params[5].children.size > 1
+				walk_wiseau(params[5])
 			end
 		when "conditional" #equalTo | notEqualTo | greaterThan | lessThan | greaterThanOrEqual | lessThanOrEqual
 			return walk_wiseau(params[0])
+		when "optionalElse" #ELSE_STMT EXCL anything | lambda
+			if params.length > 1
+				walk_wiseau(params[2])
+			end
 		when "equalTo" #CAN NAME HAVE NUMBER RED_ROSES_PLEASE
-			return @variables[params[1].label] != params[3].label.to_i
+			return @variables[params[1].label] == params[3].label.to_i
 		when "print" #printVar | printString
 			walk_wiseau(params[0])
 		when "printVar" #YOU_KNOW_WHAT_THEY_SAY COMMA NAME IS_BLIND PERIOD | WHAT_A_STORY optionalComma NAME PERIOD | ANYWAY_HOW_IS_YOUR_SEX_LIFE QUESTION

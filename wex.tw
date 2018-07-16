@@ -1,15 +1,17 @@
 TAKE_A_NAP -> \bI('m|\s+am)\s+going\s+to\s+take\s+a\s+nap\b
 DONT_PLAN_TOO_MUCH -> \bdon't\s+plan\s+too\s+much\b
+THATS_LIFE -> \bThat's\s+life\b
 NO_SECRETS -> \bYou\s+should(n'|\s+no)t\s+(have|keep)\s+any\s+secrets\s+from\s+me\b
 NICE_TO_SEE_YOU -> \b(Good|Nice)\s+to\s+see\s+you\b
 GREAT_BUT -> \bgreat\s+but\b
 A_CROWD -> \ba\s+crowd\b
 RECORD -> \bI('ll|\s+will)?\s+record\s+everything\b
-LOOP_START -> \bloop\s+start\b
-LOOP_END -> \bloop\s+end\b
-IF_STMT -> \bif\s+statement\b
-END_IF -> \bend\s+if\b
-BREAK_STMT -> \bbreak\s+loop\b
+LOOP_START -> \bDo\s+you\s+want\s+me\s+to\s+order\s+a\s+pizza\b
+LOOP_END -> \bI\s+already\s+ordered\s+a\s+pizza\b
+IF_STMT -> \bPlease\s+talk\s+to\s+me\b
+ELSE_STMT -> \bPlease\b
+END_IF -> \bThat('|\s+i)s\s+the\s+idea\b
+BREAK_STMT -> \bdon't\s+worry\s+about\s+it\b
 SHOW_THEM -> \bI('ll|\s+will)?\s+show\s+them\b
 YOU_KNOW_WHAT_THEY_SAY -> \bYou\s+know\s+what\s+they\s+say\b
 ANYWAY_HOW_IS_YOUR_SEX_LIFE -> \bAnyway,?\s+how\s+is\s+your\s+sex\s+life\b
@@ -26,7 +28,6 @@ IS_BLIND -> \bis\s+blind\b
 SHE_HAD -> \bS?he\s+had\b
 OHI -> \bOh\s+hi\b
 FORGIVE_ME -> \bforgive\s+me\b
-THATS_LIFE -> \bThat's\s+life\b
 WHAT_A_STORY -> \bWhat\s+a\s+story\b
 QUOTE -> "([\w\s\.\!\?',\\]+)"
 IS -> (('s)|\bis)\b
@@ -61,9 +62,10 @@ subVar -> NAME DOESNT_HAVE NUMBER FUCKING_MINUTES EXCL
 divideVar -> NAME TEARING NAME APART EXCL
 randomizeVar -> PEOPLE_ARE_STRANGE PERIOD | NAME IS_STRANGE PERIOD
 getInput -> NO_SECRETS PERIOD
-loop -> LOOP_START PERIOD anything LOOP_END PERIOD
-ifStmt -> IF_STMT COLON conditional QUESTION anything END_IF PERIOD
+loop -> LOOP_START QUESTION anything LOOP_END PERIOD
+ifStmt -> IF_STMT COLON conditional QUESTION anything optionalElse END_IF PERIOD
 conditional -> equalTo | notEqualTo | greaterThan | lessThan | greaterThanOrEqual | lessThanOrEqual
+optionalElse -> ELSE_STMT EXCL anything | lambda
 equalTo -> CAN NAME HAVE NUMBER RED_ROSES_PLEASE
 notEqualTo -> EXCL EXCL PERIOD
 greaterThan -> EXCL QUESTION

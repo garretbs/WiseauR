@@ -1,6 +1,6 @@
 Oh hi Mark. He had 99 gals.
 
-loop start.
+Do you want me to order a pizza?
 	Anyway, how is your sex life?
 	You know what they say, " bottles of beer on the wall,\n".
 	Anyway, how is your sex life?
@@ -8,12 +8,12 @@ loop start.
 	You know what they say, "Take one down, pass it around,\n".
 	Cheep.
 	Anyway, how is your sex life?
-	You know what they say, " bottles of beer on the wall\n".
+	You know what they say, " bottles of beer on the wall.\n\n".
 
-	if statement: Can Mark have 0 red roses please?
-		break loop.
-	end if.
+	Please talk to me: Can Mark have 0 red roses please?
+		Don't worry about it.
+	That's the idea.
 
-loop end.
+I already ordered a pizza.
 
 That's life.

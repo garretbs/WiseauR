@@ -79,7 +79,13 @@ Or:
 To print the most current variable without naming it:
 `Anyway, how is your sex life?`
 ##### Printing strings
-`You know what they say, "I already ordered a pizza.".`
+`You know what they say, "I already ordered a pizza.".`\
+### Loops
+```
+Do you want me to order a pizza?
+[operations to be looped]
+I already ordered a pizza.
+```
 ## Hello, world!
 ```
 You know what they say, "Hello, world!".
